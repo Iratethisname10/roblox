@@ -1,3 +1,6 @@
+-- loadstring:
+-- loadstring(game:HttpGet('https://raw.githubusercontent.com/Iratethisname10/roblox/refs/heads/main/misc/ui%20test.lua'))()
+
 local library = loadstring(game:HttpGet('https://raw.githubusercontent.com/Iratethisname10/roblox/refs/heads/main/ui/uwuware.lua'))();
 
 local main = library:AddTab('Main');
