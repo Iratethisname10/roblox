@@ -225,7 +225,7 @@ do
 		end;
 
 		for _, v in next, self.instances do
-			if (v.object.drawing) then pcall(function() v.object:Remove(); end); end;
+			if (v.drawing) then pcall(function() v.object:Remove(); end); end;
 			if (v.object.Destroy) then pcall(function() v.object:Destroy(); end); end;
 		end;
 
@@ -3352,7 +3352,7 @@ do
 		settingsMenu:AddColor({
 			text = 'Accent Color',
 			flag = 'Menu Accent Color',
-			color = Color3.fromRGB(18, 127, 253),
+			color = Color3.fromRGB(209, 128, 255),
 			callback = function(Color)
 				if (library.currentTab) then
 					library.currentTab.button.TextColor3 = Color;
