@@ -13,8 +13,8 @@ local function getScript(url)
 	return fun();
 end;
 
-local Signal = getScript('signal.lua');
-local Maid = getScript('maid.lua');
+local Signal = getScript('signal');
+local Maid = getScript('maid');
 
 local cloneref = cloneref or function(inst) return inst; end;
 
@@ -2255,7 +2255,7 @@ do
 					end;
 
 					if (library.hasInit and self.hasInit) then
-						createToggle(option, self.content);;
+						createToggle(option, self.content);
 					else
 						option.Init = createToggle;
 					end;
@@ -2311,7 +2311,7 @@ do
 					end;
 
 					if (library.hasInit and self.hasInit) then
-						createButton(option, self.content);;
+						createButton(option, self.content);
 					else
 						option.Init = createButton;
 					end;
@@ -2508,7 +2508,7 @@ do
 
 					if (library.hasInit and self.hasInit) then
 						createColor(option, self.content);
-					else;
+					else
 						option.Init = createColor;
 					end;
 
@@ -3403,7 +3403,7 @@ do
 		local function getAllConfigs()
 			local files = {};
 
-			for _, v in next, listfiles('Aztup Hub V3/configs') do
+			for _, v in next, listfiles('vocats-projects/configs') do
 				if (not isfolder(v)) then continue; end;
 
 				for _, v2 in next, listfiles(v) do
@@ -3516,7 +3516,7 @@ do
 					end;
 				end;
 
-				local configData = readfile(string.format('Aztup Hub V3/configs/%s/%s', folderName, fullConfigName));
+				local configData = readfile(string.format('vocats-projects/configs/%s/%s', folderName, fullConfigName));
 				writefile(string.format('%s/%s', library.foldername, fullConfigName), configData);
 
 				library:LoadConfig(configName);
