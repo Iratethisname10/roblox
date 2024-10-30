@@ -11,8 +11,8 @@ local function getScript(url)
 	return fun();
 end;
 
-local Signal = getScript('signal.lua');
-local Maid = getScript('maid.lua');
+local Signal = getScript('signal');
+local Maid = getScript('maid');
 
 local cloneref = cloneref or function(inst) return inst; end;
 
