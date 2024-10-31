@@ -113,6 +113,7 @@ do
 
 		local humanoid = character:FindFirstChildOfClass('Humanoid');
 		local rootPart = character:FindFirstChild('HumanoidRootPart');
+		if (not humanoid or not rootPart) then return; end;
 
 		local maxHealth, health = humanoid.MaxHealth, humanoid.Health;
 
