@@ -64,8 +64,8 @@ function basics.fly(t, speed, noVelo, useMover)
 
 		local root = lplr.Character and lplr.Character.PrimaryPart;
 		if (root) then
-			root.AssemblyLinearVelocity *= Vector3.zero;
-			root.AssemblyAngularVelocity *= Vector3.zero;
+			root.AssemblyLinearVelocity = Vector3.zero;
+			root.AssemblyAngularVelocity = Vector3.zero;
 		end;
 
 		return;
