@@ -141,7 +141,7 @@ do
 
 		local labelPos, visibleOnScreen = worldToViewportPoint(camera, rootPartPosition + labelOffset);
 
-		local isTeamMate = self:isTeamMate(self._player);
+		local isTeamMate = self:IsTeamMate(self._player);
 		if (isTeamMate and not showTeam) then return self:Hide(); end;
 
 		local distance = (rootPartPosition - self._cameraPosition).Magnitude;
