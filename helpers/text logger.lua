@@ -394,8 +394,10 @@ do
 			local userInputType = input.UserInputType;
 
 			if (userInputType == Enum.UserInputType.MouseButton1) then
-				self._toolTip:TweenSize(UDim2.new(0, 150, 0, 0), 'Out', 'Quad', 0.1, true, function()
-					self._toolTip.Visible = false;
+				pcall(function()
+					self._toolTip:TweenSize(UDim2.new(0, 150, 0, 0), 'Out', 'Quad', 0.1, true, function()
+						self._toolTip.Visible = false;
+					end);
 				end);
 
 				self._currentToolTip = nil;

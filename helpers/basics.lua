@@ -152,7 +152,7 @@ function basics.fullBright(t)
 		maid.fullBright = nil;
 
 		if (oldAmbient) then lighting.Ambient = oldAmbient; end;
-		if (oldBrightness) then lighting.Ambient = oldBrightness; end;
+		if (oldBrightness) then lighting.Brightness = oldBrightness; end;
 		return;
 	end;
 
