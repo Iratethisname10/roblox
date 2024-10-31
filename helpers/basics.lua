@@ -56,10 +56,11 @@ function basics.speed(t, speed, noVelo)
 	end);
 end;
 
-function basics.fly(t, speed, noVelo, mover)
+local mover;
+function basics.fly(t, speed, noVelo, useMover)
 	if (not t) then
 		maid.fly = nil;
-		maid.mover = nil;
+		if (mover) then mover:Destroy(); mover = nil; end;
 
 		local root = lplr.Character and lplr.Character.PrimaryPart;
 		if (root) then
@@ -94,11 +95,11 @@ function basics.fly(t, speed, noVelo, mover)
 
 		local moveDir = hum.MoveDirection;
 
-		if (mover) then
-			maid.mover = Instance.new('BodyVelocity');
-			maid.mover.MaxForce = Vector3.one * math.huge;
-			maid.mover.Velocity = Vector3.new(moveDir.X, vertical, moveDir.Z) * speed * dt;
-			maid.mover.Parent = root;
+		if (useMover) then
+			mover = mover or Instance.new('BodyVelocity');
+			mover.MaxForce = Vector3.one * math.huge;
+			mover.Velocity = Vector3.new(moveDir.X, vertical, moveDir.Z) * speed * dt;
+			mover.Parent = root;
 		end;
 
 		root.CFrame += Vector3.new(moveDir.X, vertical, moveDir.Z) * speed * dt;
