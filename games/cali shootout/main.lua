@@ -198,7 +198,7 @@ do -- helper functions
 		return tool;
 	end;
 
-	function funcs.isPointLoaded(pos)
+	function funcs.isPointLoaded(pos, distance)
 		local characters = {};
 		for _, v in next, players:GetPlayers() do
 			if (not v.Character) then continue; end;
@@ -211,7 +211,7 @@ do -- helper functions
 		rayParams.FilterType = Enum.RaycastFilterType.Exclude;
 		rayParams.FilterDescendantsInstances = {cam, lplr.Character, characters};
 
-		local ray = workspace:Raycast(pos, Vector3.new(0, -20, 0), rayParams);
+		local ray = workspace:Raycast(pos, Vector3.new(0, tonumber(distance) or -20, 0), rayParams);
 
 		return ray and ray.Instance;
 	end;
@@ -276,9 +276,11 @@ do -- funcs
 			if (not root) then return; end;
 
 			local velocity = root.AssemblyLinearVelocity;
-			if (velocity.Y >= -150) then return; end;
+			local floor = funcs.isPointLoaded(root.CFrame.Position, 5);
 
-			root.AssemblyLinearVelocity = Vector3.new(velocity.X, 0, velocity.Z);
+			if (velocity.Y < -100 and floor) then
+				root.AssemblyLinearVelocity = Vector3.new(velocity.X, 0, velocity.Z);
+			end;
 		end);
 	end;
 
@@ -339,20 +341,6 @@ do -- funcs
 			lplr.PlayerGui.ragdoll.events.variableserver:FireServer('ragdoll', false);
 			task.wait();
 		end;
-	end;
-
-	function funcs.antiAim(t)
-		if (not t) then
-			maid.antiAim = nil;
-			return;
-		end;
-
-		maid.antiAim = runService.Heartbeat:Connect(function(dt)
-			local root = lplr.Character and lplr.Character.PrimaryPart;
-			if (not root) then return; end;
-
-			root.AssemblyAngularVelocity *= Vector3.new(0, 100 * dt, 0);
-		end);
 	end;
 
 	function funcs.autoKill()
@@ -432,6 +420,7 @@ do -- funcs
 				unhook('ZeroDamageDistance');
 				unhook('FullDamageDistance');
 				unhook('BulletShellEnabled');
+				unhook('Knockback');
 				return;
 			end;
 
@@ -446,6 +435,7 @@ do -- funcs
 			hook('ZeroDamageDistance', 9e9); -- inf range
 			hook('FullDamageDistance', 9e9); -- inf range
 			hook('BulletShellEnabled', false); -- no bullet shells
+			hook('Knockback', 9e9); -- kill people who dont have guns
 		end;
 	end;
 
@@ -656,16 +646,6 @@ do -- ui
 		character:AddToggle({
 			text = 'Anti Ragdoll',
 			callback = funcs.noRagdoll
-		});
-
-		character:AddToggle({
-			text = 'Spin Bot',
-			callback = funcs.antiAim
-		}):AddBind({
-			flag = 'spin bot bind',
-			callback = function()
-				library.options.spinBot:SetState(not library.flags.spinBot);
-			end
 		});
 	end;
 
