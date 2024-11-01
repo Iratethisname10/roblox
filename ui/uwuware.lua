@@ -3292,6 +3292,7 @@ do
 		local settingsMain = settingsColumn:AddSection('Main');
 		local settingsMenu = settingsColumn:AddSection('Menu');
 		local configSection = settingsColumn1:AddSection('Configs');
+		local discordSection = settingsColumn:AddSection('Discord');
 
 		local Backgrounds = {
 			Floral  = 5553946656,
@@ -3476,7 +3477,7 @@ do
 			text = 'Load',
 			callback = function()
 				if (showBasePrompt('load')) then
-					library:UpdateConfig(); -- Save config before switching to new one
+					library:UpdateConfig();
 					library:LoadConfig(library.flags.configList);
 				end
 			end
@@ -3535,7 +3536,7 @@ do
 				end;
 
 				maid.saveConfigAuto = task.spawn(function()
-					while true do
+					while (true) do
 						task.wait(60);
 						library:UpdateConfig();
 					end;
@@ -3556,6 +3557,11 @@ do
 			if (state ~= Enum.TeleportState.Started and state ~= Enum.TeleportState.RequestedFromServer) then return end;
 			saveConfigBeforeGameLeave();
 		end));
+
+		discordSection:AddButton({
+			text = 'Copy Discord Invite',
+			callback = function() return setclipboard('discord.gg/Gxg42Eshpy'); end;
+		});
 	end;
 end;
 
