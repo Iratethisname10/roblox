@@ -79,13 +79,13 @@ do -- text logger
 		buttons = {'Copy Username', 'Copy User Id', 'Copy Text'}
 	});
 
-	local last;
+	local last, lastPlayer;
 	local function onPlayerChatted(player, message)
 		local timeText = DateTime.now():FormatLocalTime('H:mm:ss', 'en-us');
 		local playerName = player.Name;
 
-		if (message == last) then return end;
-		last = message
+		if (message == last and playerName == lastPlayer) then return end;
+		last, lastPlayer = message, playerName;
 
 		message = ('[%s] [%s] %s'):format(timeText, playerName, message);
 
@@ -190,7 +190,7 @@ end;
 
 do -- helper functions
 	function funcs.getWeapon()
-		local tool = lplr.Character:FindFirstChildOfClass('Tool');
+		local tool = lplr.Character and lplr.Character:FindFirstChildOfClass('Tool');
 		if (not tool) then return nil; end;
 
 		if (not table.find(gunsList, tool.Name)) then return nil; end;
@@ -289,20 +289,20 @@ do -- funcs
 		function funcs.god(t)
 			if (not t) then
 				if (not part or not oldCf or not oldSize) then return; end;
-	
+
 				part.CFrame = oldCf;
 				part.Size = oldSize;
-	
+
 				return;
 			end;
-	
+
 			local streamTask = task.spawn(function()
 				while (true) do
 					lplr:RequestStreamAroundAsync(Vector3.new(-1635, 4, -93));
 					task.wait();
 				end;
 			end);
-	
+
 			local cachedPart = cache.godPart;
 			if (cachedPart) then
 				part = cachedPart;
@@ -312,25 +312,25 @@ do -- funcs
 					for _, v in safeZones:GetChildren() do
 						if (not v:IsA('BasePart')) then continue; end;
 						if (v.Name ~= 'safeZoneArea') then continue; end;
-	
+
 						part = v;
 						break;
 					end;
 					task.wait();
 				until part;
 			end;
-	
+
 			oldSize = part.Size;
 			oldCf = part.CFrame;
 			task.cancel(streamTask);
-	
+
 			repeat
 				local root = lplr.Character and lplr.Character.PrimaryPart;
 				if (not root) then return; end;
-	
+
 				part.Size = Vector3.one * 2040;
 				part.CFrame = root.CFrame;
-	
+
 				task.wait(3);
 			until not library.flags.godMode;
 		end;
@@ -338,18 +338,43 @@ do -- funcs
 
 	function funcs.noRagdoll()
 		while (library.flags.antiRagdoll) do
-			lplr.PlayerGui.ragdoll.events.variableserver:FireServer('ragdoll', false);
+			local ragdoll = lplr.PlayerGui and lplr.PlayerGui:FindFirstChild('ragdoll');
+			if (not ragdoll) then task.wait(); continue; end;
+
+			local events = ragdoll:FindFirstChild('events');
+			if (not events) then task.wait(); continue; end;
+
+			local remote = events:FindFirstChild('variableserver');
+			if (not remote) then task.wait(); continue; end;
+
+			remote:FireServer('ragdoll', false);
 			task.wait();
 		end;
 	end;
 
-	function funcs.autoKill()
-		while (library.flags.autoKill) do
+	function funcs.autoKill(t)
+		if (not t) then
+			maid.autoKill = nil;
+			return;
+		end;
+
+		maid.autoKill = runService.Heartbeat:Connect(function()
 			for _, v in next, players:GetPlayers() do
 				if (v == lplr) then continue; end;
-				if (not v.Character) then continue; end;
-				if (not v.Character:FindFirstChild('Humanoid') or not v.Character:FindFirstChild('HumanoidRootPart')) then continue; end;
-				if (v.Character.Humanoid.Health > 500) then continue; end;
+
+				local root = v.Character and v.Character:FindFirstChild('HumanoidRootPart');
+				if (not root) then continue; end;
+
+				local hum = v.Character:FindFirstChildOfClass('Humanoid');
+				if (not hum) then continue; end;
+
+				local head = v.Character:FindFirstChild('Head');
+				if (not head) then continue; end;
+
+				local collision = head:FindFirstChild('HeadCollision');
+				if (not collision) then continue; end;
+
+				if (hum.Health > 100) then continue; end;
 
 				local weapon = funcs.getWeapon();
 				if (not weapon) then continue; end;
@@ -358,9 +383,9 @@ do -- funcs
 					[1] = 'Gun',
 					[2] = weapon,
 					[3] = require(weaponSettings[weapon.Name].Setting['1']),
-					[4] = v.Character.Humanoid,
-					[5] = v.Character.HumanoidRootPart,
-					[6] = v.Character.Head.HeadCollision,
+					[4] = hum,
+					[5] = root,
+					[6] = collision,
 					[7] = Vector3.one,
 					[8] = {
 						ChargeLevel = 0,
@@ -370,11 +395,10 @@ do -- funcs
 						GoreEffect = gunEffects.GoreEffect,
 						BloodEffectFolder = gunEffects.BloodEffect
 					},
-					[9] = 1.5
+					[9] = 0
 				}));
 			end;
-			task.wait();
-		end;
+		end);
 	end;
 
 	do -- gun mods
@@ -382,16 +406,24 @@ do -- funcs
 
 		local function hook(prop, val)
 			for _, v in next, gunsList do
-				old[v] = require(weaponSettings[v].Setting['1'])[prop];
+				old[v] = old[v] or {};
+
+				if (not old[v][prop]) then
+					old[v][prop] = require(weaponSettings[v].Setting['1'])[prop];
+				end;
+
 				require(weaponSettings[v].Setting['1'])[prop] = val;
 			end;
 		end;
 
 		local function unhook(prop)
-			if (#old < 1) then return; end;
+			if (not next(old)) then return; end;
 
 			for _, v in next, gunsList do
-				require(weaponSettings[v].Setting['1'])[prop] = old[v];
+				if (not old[v] or not old[v][prop]) then continue; end;
+
+				require(weaponSettings[v].Setting['1'])[prop] = old[v][prop];
+				old[v][prop] = nil;
 			end;
 		end;
 
