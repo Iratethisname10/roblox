@@ -948,7 +948,6 @@ do -- ui
 		esp:AddToggle({text = 'Display Health'});
 
 		esp:AddDivider();
-		esp:AddToggle({text = 'Render Team Members', state = true});
 		esp:AddToggle({text = 'Use Float Health', tip = 'shows the players health as a percentage'});
 		esp:AddToggle({text = 'Unlock Tracers'});
 
