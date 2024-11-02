@@ -48,6 +48,7 @@ local cam = workspace.CurrentCamera;
 
 local safeZones = workspace.SafeZones;
 local carRobberys = workspace.CarRobberys;
+local jobSystem = workspace['Job System'];
 
 local remotes = repoStore.Remotes;
 local modules = repoStore.Modules;
@@ -103,8 +104,11 @@ do -- text logger
 end;
 
 do -- esp
+	-- // override
+	function PlayerESP:IsTeamMate() return false; end;
+
+	-- // main
 	local playerList = {};
-	local ESP_UPDATE_RATE = 0.01;
 
 	local function onPlayerAdded(player)
 		if (player == lplr) then return; end;
@@ -154,24 +158,16 @@ do -- esp
 			return;
 		end;
 
-		lastUpdateAt = 0;
+		local lastUpdateAt = 0;
 
 		maid.updateEsp = runService.RenderStepped:Connect(function()
-			if (tick() - lastUpdateAt < ESP_UPDATE_RATE) then return; end;
+			if (tick() - lastUpdateAt < 0.01) then return; end;
 			lastUpdateAt = tick();
 
 			for _, v in playerList do
 				v:Update();
 			end;
 		end);
-	end;
-
-	function funcs.updateESPDistance(val)
-		if (val == 10000) then
-			val = math.huge;
-		end;
-
-		library.flags.maxEspDistance = val;
 	end;
 
 	function funcs.updateESPFont(val)
@@ -186,6 +182,8 @@ do -- esp
 			v:SetTextSize(val)
 		end
 	end;
+
+	library.flags.maxEspDistance = math.huge;
 end;
 
 do -- helper functions
@@ -516,9 +514,158 @@ do -- funcs
 		end;
 	end;
 
-	function funcs.noDeathEffect(t)
+	do -- wee farm
+		local weed = {};
+		weed.start = Vector3.new(-1986, 7, 177);
+		weed.sell = Vector3.new(-2005, 3, 198);
+		weed.found = {};
+
+		function weed.get()
+			for _, v in next, workspace:GetDescendants() do
+				if (not v:IsA('ProximityPrompt')) then continue; end;
+				if (not v.Parent:IsA('MeshPart')) then continue; end;
+				if (v.Parent.Name ~= 'Grass') then continue; end;
+				if (v.Parent.Transparency ~= 0) then continue; end;
+
+				weed.found.found = true;
+				weed.found.prompt = v;
+				weed.found.part = v.Parent;
+			end;
+		end;
+
+		function weed.clear()
+			weed.found.found = false;
+			weed.found.prompt = nil;
+			weed.found.part = nil;
+		end;
+
+		function funcs.weedFarm()
+			while (library.flags.weedFarm) do
+				local root = lplr.Character and lplr.Character.PrimaryPart;
+				if (not root) then continue; end;
+
+				funcs.teleport(weed.start);
+				weed.clear();
+
+				repeat
+					if (not library.flags.weedFarm) then break; end;
+
+					weed.get();
+					task.wait(2);
+				until weed.found.found;
+
+				funcs.teleport(weed.found.part);
+				fireproximityprompt(weed.found.prompt);
+
+				task.wait(0.15);
+
+				while (lplr.Character:FindFirstChild('Grass') or lplr.Backpack:FindFirstChild('Grass')) do
+					if (lplr.Backpack:FindFirstChild('Grass')) then
+						lplr.Backpack.Grass.Parent = lplr.Character;
+						runService.Heartbeat:Wait();
+					end;
+
+					funcs.teleport(weed.sell);
+
+					task.delay(1, function()
+						local transmitter = cache.weedTouchTransmitter;
+						if (transmitter) then
+							firetouchinterest(root, transmitter, 0);
+							task.wait();
+							firetouchinterest(root, transmitter, 1);
+						else
+							for _, v in next, workspace:GetDescendants() do
+								if (not v:FindFirstChild('BoxPlay')) then continue; end;
+								if (not v:FindFirstChild('Script')) then continue; end;
+								if (not v:FindFirstChild('TouchInterest')) then continue; end;
+
+								cache.weedTouchTransmitter = v;
+								firetouchinterest(root, v, 0);
+								task.wait();
+								firetouchinterest(root, v, 1);
+							end;
+						end;
+					end);
+
+					task.wait();
+				end;
+
+				weed.clear();
+				task.wait(3);
+			end;
+		end;
+	end;
+
+	do -- box farm
+		local box = {};
+		box.start = Vector3.new(-1941, 3, -49);
+		box.sell = Vector3.new(-1925, 3, -22);
+
+		function funcs.boxFarm()
+			while (library.flags.boxFarm) do
+				local root = lplr.Character and lplr.Character.PrimaryPart;
+				if (not root) then continue; end;
+
+				funcs.teleport(box.start);
+
+				local boxPrompt = cache.boxPrompt;
+				if (boxPrompt) then
+					fireproximityprompt(boxPrompt);
+				else
+					for _, v in next, jobSystem:GetDescendants() do
+						if (not v:IsA('ProximityPrompt')) then continue; end;
+						if (v.ObjectText ~= '📦Deliver the crate to the truck') then continue; end;
+
+						cache.boxPrompt = v;
+						fireproximityprompt(v);
+						break;
+					end;
+				end;
+
+				task.wait(0.15);
+
+				while (lplr.Character:FindFirstChild('BOX') or lplr.Backpack:FindFirstChild('BOX')) do
+					if (lplr.Backpack:FindFirstChild('BOX')) then
+						lplr.Backpack.BOX.Parent = lplr.Character;
+						runService.Heartbeat:Wait();
+					end;
+
+					funcs.teleport(box.sell);
+
+					task.delay(1, function()
+						local transmitter = cache.boxTouchTransmitter;
+						if (transmitter) then
+							firetouchinterest(root, transmitter, 0);
+							task.wait();
+							firetouchinterest(root, transmitter, 1);
+						else
+							for _, v in next, jobSystem:GetDescendants() do
+								if (not v:FindFirstChild('BoxPlay')) then continue; end;
+								if (not v:FindFirstChild('Script')) then continue; end;
+								if (not v:FindFirstChild('TouchInterest')) then continue; end;
+
+								cache.boxTouchTransmitter = v;
+								firetouchinterest(root, v, 0);
+								task.wait();
+								firetouchinterest(root, v, 1);
+							end;
+						end;
+					end);
+
+					task.wait();
+				end;
+
+				task.wait(3);
+			end;
+		end;
+	end;
+
+	function funcs.noDeathEffect()
 		while (library.flags.noDeathEffect) do
-			for _, v in next, lplr.PlayerGui['Damage GUI']:GetChildren() do
+			local damageUi = lplr.PlayerGui:FindFirstChild('Damage GUI');
+			if (not damageUi) then continue; end;
+
+			for _, v in next, damageUi:GetChildren() do
 				if (not v:IsA('ImageLabel')) then continue; end;
 				v.Visible = false;
 			end;
@@ -623,7 +770,10 @@ do -- ui
 			text = 'Speed Value',
 			min = 20,
 			max = 300,
-			textpos = 2
+			textpos = 2,
+			callback = function(val)
+				basics.speed(library.flags.speed, val, true);
+			end
 		});
 
 		character:AddToggle({
@@ -642,7 +792,10 @@ do -- ui
 			text = 'Fly Speed Value',
 			min = 20,
 			max = 300,
-			textpos = 2
+			textpos = 2,
+			callback = function(val)
+				basics.fly(library.flags.fly, val, true, true);
+			end
 		});
 
 		character:AddToggle({
@@ -709,6 +862,16 @@ do -- ui
 			text = 'Auto Rob Cars',
 			callback = funcs.robCars
 		});
+
+		autofarm:AddToggle({
+			text = 'Weed Farm',
+			callback = funcs.weedFarm
+		});
+
+		autofarm:AddToggle({
+			text = 'Box Farm',
+			callback = funcs.boxFarm
+		});
 	end;
 
 	do -- extra
@@ -743,18 +906,12 @@ do -- ui
 			text = 'Enabled',
 			flag = 'toggle esp',
 			callback = funcs.enableESP
+		}):AddColor({
+			flag = 'enemy Color',
+			color = Color3.fromRGB(255, 0, 0)
 		});
 
 		esp:AddDivider();
-
-		esp:AddSlider({
-			text = 'Max Esp Distance',
-			value = 10000,
-			min = 50,
-			max = 10000,
-			textpos = 2,
-			callback = funcs.updateESPDistance
-		});
 
 		esp:AddList({
 			text = 'Esp Font',
@@ -796,11 +953,7 @@ do -- ui
 		esp:AddToggle({text = 'Unlock Tracers'});
 
 		esp:AddDivider();
-		esp:AddToggle({text = 'Rainbow Enemy Color', callback = funcs.toggleRainbowEsp('enemyColor')});
-		esp:AddToggle({text = 'Rainbow Ally Color', callback = funcs.toggleRainbowEsp('allyColor')});
-		esp:AddColor({text = 'Ally Color', color = Color3.fromRGB(0, 255, 0)});
-		esp:AddColor({text = 'Enemy Color', color = Color3.fromRGB(255, 0, 0)});
-		esp:AddToggle({text = 'Use Team Color', state = true});
+		esp:AddToggle({text = 'Rainbow', callback = funcs.toggleRainbowEsp('enemyColor')});
 	end;
 
 	do -- effects
