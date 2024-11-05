@@ -1,6 +1,5 @@
 local Signal = {};
 Signal.__index = Signal;
-Signal.ClassName = 'Signal';
 
 function Signal.new()
 	local self = setmetatable({}, Signal);
@@ -20,8 +19,12 @@ function Signal:Fire(...)
 	self._argData = {...};
 	self._argCount = select("#", ...);
 	self._bindableEvent:Fire();
-	--self._argData = nil;
-	--self._argCount = nil;
+
+	---@diagnostic disable-next-line: undefined-global
+	if (not library.fixSignal) then
+		self._argData = nil;
+		self._argCount = nil;
+	end;
 end;
 
 function Signal:Connect(handler)
