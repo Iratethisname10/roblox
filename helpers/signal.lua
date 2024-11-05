@@ -20,8 +20,8 @@ function Signal:Fire(...)
 	self._argData = {...};
 	self._argCount = select("#", ...);
 	self._bindableEvent:Fire();
-	self._argData = nil;
-	self._argCount = nil;
+	--self._argData = nil;
+	--self._argCount = nil;
 end;
 
 function Signal:Connect(handler)
