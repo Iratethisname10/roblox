@@ -21,6 +21,7 @@ local inputService = cloneref(game:GetService('UserInputService'));
 local lighting = cloneref(game:GetService('Lighting'));
 
 local lplr = players.localPlayer;
+local cam = workspace.CurrentCamera;
 
 local maid = Maid.new();
 
@@ -165,6 +166,21 @@ function basics.fullBright(t)
 
 	lighting.Ambient = Color3.fromRGB(255, 255, 255);
 	lighting.Brightness = 1;
+end;
+
+local oldFov;
+function basics.fovChanger(t, fov)
+	if (not t) then
+		maid.fovChanger = nil;
+
+		if (oldFov) then cam.FieldOfView = oldFov; end;
+		return;
+	end;
+
+	oldFov = cam.FieldOfView;
+	maid.fovChanger = runService.RenderStepped:Connect(function()
+		cam.FieldOfView = fov;
+	end);
 end;
 
 return basics;
