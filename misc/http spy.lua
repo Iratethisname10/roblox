@@ -10,8 +10,6 @@ local callingMethod = clonefunc(getnamecallmethod);
 local cClosure = clonefunc(newcclosure);
 local hookMethod = clonefunc(hookmetamethod);
 
-local blockRequests = false;
-
 local toLog = {
 	HttpGet = true,
 	HttpGetAsync = true,
@@ -30,11 +28,6 @@ oldNamecall = hookMethod(game, '__namecall', cClosure(function(self, ...)
 
 	if (toLog[method]) then
 		printf('%s - %s', method, ...);
-	end;
-
-	if (blockRequests) then
-		printf('blocked');
-		return task.wait(9e99);
 	end;
 
 	return oldNamecall(self, ...);
