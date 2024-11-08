@@ -193,6 +193,46 @@ function basics.noclip(t, instRevert)
 	end);
 end;
 
+local moddedParts = {};
+function basics.noclipParts(t)
+	if (not t) then
+		maid.noclipParts = nil;
+		for i in next, moddedParts do if (i) then i.CanCollide = true; end; end;
+		table.clear(moddedParts);
+		return;
+	end;
+
+	local overlap = OverlapParams.new()
+	overlap.MaxParts = 9e9
+	overlap.FilterDescendantsInstances = {}
+
+	maid.noclipParts = runService.Heartbeat:Connect(function()
+		local root = lplr.Character and lplr.Character.PrimaryPart;
+		if (not root) then return; end;
+
+		local ignore = {cam, lplr.Character};
+		for _, v in next, players:GetPlayers() do table.insert(ignore, v.Character); end;
+		overlap.FilterDescendantsInstances = ignore;
+
+		local pos = root.CFrame.Position;
+		local parts = workspace:GetPartBoundsInRadius(pos, 2, overlap);
+
+		for _, v in next, parts do
+			if (not v.CanCollide) then continue; end;
+			if ((v.Position.Y + (v.Size.Y / 2)) < (pos.Y - lplr.Character.Humanoid.HipHeight)) then continue; end;
+
+			moddedParts[v] = true;
+			v.CanCollide = false;
+		end;
+
+		for i in next, moddedParts do
+			if (table.find(parts, i)) then continue; end;
+			moddedParts[i] = nil;
+			i.CanCollide = true;
+		end;
+	end);
+end;
+
 function basics.infJump(t)
 	if (not t) then
 		maid.infJump = nil;
@@ -243,6 +283,83 @@ function basics.fovChanger(t, fov)
 	maid.fovChanger = runService.RenderStepped:Connect(function()
 		cam.FieldOfView = fov;
 	end);
+end;
+
+function basics.closeToMouse(fov, part, wallCheck, teamCheck, aliveCheck)
+	local player, distance = nil, fov;
+
+	for _, v in next, players:getPlayers() do
+		if (v == lplr) then continue; end;
+
+		local char = v.Character;
+		if (not char) then continue; end;
+
+		local hum = char:FindFirstChildOfClass('Humanoid');
+		if (not hum) then continue; end;
+
+		local targetPart = char:FindFirstChild(part);
+		if (not targetPart) then continue; end;
+
+		if (wallCheck and basics.behindWall(v, targetPart)) then continue; end;
+		if (teamCheck and basics.isTeam(v)) then continue; end;
+		if (aliveCheck and hum.Health <= 0) then continue; end;
+
+		local vector, inViewport = cam:WorldToViewportPoint(targetPart.CFrame.Position);
+		local magnitude = (inputService:GetMouseLocation() - Vector2.new(vector.X, vector.Y)).Magnitude;
+
+		if (magnitude <= distance and inViewport) then
+			distance = magnitude;
+			player = v;
+		end;
+	end;
+
+	return player;
+end;
+
+function basics.closeToCharacter(dist, part, wallCheck, teamCheck, aliveCheck)
+	local player, distance = nil, dist;
+
+	local root = lplr.Character and lplr.Character.PrimaryPart;
+	if (not root) then return {Character = nil}; end;
+
+	for _, v in next, players:getPlayers() do
+		if (v == lplr) then continue; end;
+
+		local char = v.Character;
+		if (not char) then continue; end;
+
+		local hum = char:FindFirstChildOfClass('Humanoid');
+		if (not hum) then continue; end;
+
+		local targetPart = char:FindFirstChild(part);
+		if (not targetPart) then continue; end;
+
+		if (wallCheck and basics.behindWall(v, targetPart)) then continue; end;
+		if (teamCheck and basics.isTeam(v)) then continue; end;
+		if (aliveCheck and hum.Health <= 0) then continue; end;
+
+		local magnitude = (root.CFrame.Position - targetPart.CFrame.Position).Magnitude;
+		if (magnitude <= distance) then
+			distance = magnitude;
+			player = v;
+		end;
+	end;
+
+	return player;
+end;
+
+function basics.isTeam(player)
+	local myTeam, thierTeam = lplr.Team, player.Team;
+
+	if (not myTeam or not thierTeam) then
+		return;
+	end;
+
+	return myTeam == thierTeam;
+end;
+
+function basics.behindWall(player, part)
+	return #cam:GetPartsObscuringTarget({part.CFrame.Position}, player.Character:GetDescendants()) > 0
 end;
 
 return basics;
