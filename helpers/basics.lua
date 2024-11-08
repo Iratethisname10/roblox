@@ -210,6 +210,9 @@ function basics.noclipParts(t)
 		local root = lplr.Character and lplr.Character.PrimaryPart;
 		if (not root) then return; end;
 
+		local hum = lplr.Character:FindFirstChildOfClass('Humanoid');
+		if (not hum) then return; end;
+
 		local ignore = {cam, lplr.Character};
 		for _, v in next, players:GetPlayers() do table.insert(ignore, v.Character); end;
 		overlap.FilterDescendantsInstances = ignore;
@@ -219,7 +222,7 @@ function basics.noclipParts(t)
 
 		for _, v in next, parts do
 			if (not v.CanCollide) then continue; end;
-			if ((v.Position.Y + (v.Size.Y / 2)) < (pos.Y - lplr.Character.Humanoid.HipHeight)) then continue; end;
+			if ((v.Position.Y + (v.Size.Y / 2)) < (pos.Y - hum.HipHeight)) then continue; end;
 
 			moddedParts[v] = true;
 			v.CanCollide = false;
