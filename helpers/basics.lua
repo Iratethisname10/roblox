@@ -57,6 +57,32 @@ function basics.speed(t, speed, noVelo)
 	end);
 end;
 
+function basics.speedVelo(t, speed)
+	if (not t) then
+		maid.speedVelo = nil;
+
+		local root = lplr.Character and lplr.Character.PrimaryPart;
+		if (root) then
+			root.AssemblyLinearVelocity = Vector3.zero;
+			root.AssemblyAngularVelocity = Vector3.zero;
+		end;
+
+		return;
+	end;
+
+	maid.speedVelo = runService.Heartbeat:Connect(function()
+		local root = lplr.Character and lplr.Character.PrimaryPart;
+		if (not root) then return; end;
+
+		local hum = lplr.Character:FindFirstChildOfClass('Humanoid');
+		if (not hum) then return; end;
+
+		local moveDir = hum.MoveDirection;
+		local preVelo = root.AssemblyLinearVelocity;
+		root.AssemblyLinearVelocity = Vector3.new(moveDir.X * speed, preVelo.Y, moveDir.Z * speed);
+	end);
+end;
+
 function basics.fly(t, speed, noVelo, useMover)
 	if (not t) then
 		maid.fly = nil;
@@ -80,9 +106,9 @@ function basics.fly(t, speed, noVelo, useMover)
 		local hum = lplr.Character:FindFirstChildOfClass('Humanoid');
 		if (not hum) then return; end;
 
-		if (inputService:IsKeyDown(Enum.KeyCode.Space)) then
+		if (inputService:IsKeyDown(Enum.KeyCode.Space) and not inputService:GetFocusedTextBox()) then
 			vertical = 1;
-		elseif (inputService:IsKeyDown(Enum.KeyCode.LeftControl)) then
+		elseif (inputService:IsKeyDown(Enum.KeyCode.LeftControl) and not inputService:GetFocusedTextBox()) then
 			vertical = -1;
 		else
 			vertical = 0;
@@ -103,6 +129,42 @@ function basics.fly(t, speed, noVelo, useMover)
 		end;
 
 		root.CFrame += Vector3.new(moveDir.X, vertical, moveDir.Z) * speed * dt;
+	end)
+end;
+
+function basics.flyVelo(t, speed)
+	if (not t) then
+		maid.flyVelo = nil;
+
+		local root = lplr.Character and lplr.Character.PrimaryPart;
+		if (root) then
+			root.AssemblyLinearVelocity = Vector3.zero;
+			root.AssemblyAngularVelocity = Vector3.zero;
+		end;
+
+		return;
+	end;
+
+	local vertical = 0;
+
+	maid.flyVelo = runService.Heartbeat:Connect(function()
+		local root = lplr.Character and lplr.Character.PrimaryPart;
+		if (not root) then return; end;
+
+		local hum = lplr.Character:FindFirstChildOfClass('Humanoid');
+		if (not hum) then return; end;
+
+		if (inputService:IsKeyDown(Enum.KeyCode.Space) and not inputService:GetFocusedTextBox()) then
+			vertical = 1;
+		elseif (inputService:IsKeyDown(Enum.KeyCode.LeftControl) and not inputService:GetFocusedTextBox()) then
+			vertical = -1;
+		else
+			vertical = 0;
+		end;
+
+		local moveDir = hum.MoveDirection;
+
+		root.AssemblyLinearVelocity = Vector3.new(moveDir.X, vertical, moveDir.Z) * speed;
 	end)
 end;
 
