@@ -83,7 +83,7 @@ function basics.speedVelo(t, speed)
 	end);
 end;
 
-function basics.fly(t, speed, noVelo, useMover)
+function basics.fly(t, speed, useMover)
 	if (not t) then
 		maid.fly = nil;
 		maid.mover = nil;
@@ -114,10 +114,8 @@ function basics.fly(t, speed, noVelo, useMover)
 			vertical = 0;
 		end;
 
-		if (noVelo) then
-			root.AssemblyLinearVelocity = Vector3.zero;
-			root.AssemblyAngularVelocity = Vector3.zero;
-		end;
+		root.AssemblyLinearVelocity = Vector3.zero;
+		root.AssemblyAngularVelocity = Vector3.zero;
 
 		local moveDir = hum.MoveDirection;
 
