@@ -779,7 +779,7 @@ do -- ui
 		character:AddToggle({
 			text = 'Fly',
 			callback = function(t)
-				basics.fly(t, library.flags.flySpeedValue, true, true);
+				basics.fly(t, library.flags.flySpeedValue, true);
 			end
 		}):AddBind({
 			flag = 'fly bind',
