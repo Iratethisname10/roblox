@@ -251,6 +251,20 @@ function basics.infJump(t)
 	end);
 end;
 
+function basics.spinBot(t)
+	if (not t) then
+		maid.antiAim = nil;
+		return;
+	end;
+
+	maid.antiAim = runService.Heartbeat:Connect(function(dt)
+		local root = lplr.Character and lplr.Character.PrimaryPart;
+		if (not root) then return; end;
+
+		root.CFrame *= CFrame.Angles(0, 150 * dt, 0);
+	end);
+end;
+
 local oldAmbient, oldBrightness;
 function basics.fullBright(t)
 	if (not t) then
