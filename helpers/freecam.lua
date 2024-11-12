@@ -190,9 +190,9 @@ local function getFocusDistance(cframe)
 	local viewport = cam.ViewportSize;
 	local projy = 2 * math.tan(cameraFov / 2);
 	local projx = viewport.X / viewport.Y * projy;
-	local fx = cam.RightVector;
-	local fy = cam.UpVector;
-	local fz = cam.LookVector;
+	local fx = cframe.RightVector;
+	local fy = cframe.UpVector;
+	local fz = cframe.LookVector;
 
 	local minVect = Vector3.zero;
 	local minDist = 512;
