@@ -3286,7 +3286,7 @@ do
 			maid:Destroy();
 		end);
 
-		local settingsTab = library:AddTab('Settings', 100);
+		local settingsTab = library:AddTab('settings', 100);
 		local settingsColumn = settingsTab:AddColumn();
 		local settingsColumn1 = settingsTab:AddColumn();
 		local settingsMain = settingsColumn:AddSection('Main');
