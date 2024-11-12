@@ -3346,7 +3346,7 @@ do
 			text = 'Open / Close',
 			flag = 'UI Toggle',
 			nomouse = true,
-			key = 'LeftAlt',
+			key = 'RightControl',
 			callback = function() library:Close(); end
 		});
 
