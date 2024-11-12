@@ -96,6 +96,8 @@ do -- playerState
 	end;
 
 	function playerState:Destroy()
+		if (not next(self)) then return; end;
+
 		cam.FieldOfView = self._oldCameraFieldOfView;
 		self._oldCameraFieldOfView = nil;
 
@@ -138,7 +140,7 @@ do -- input
 	function input.vel(deltaTime)
 		navSpeed = math.clamp(navSpeed + deltaTime * (keyboard.Up - keyboard.Down) * NAV_ADJ_SPEED, 0.01, 4);
 
-		local localKeyboard = Vector3.new(keyboard.D - keyboard.A, keyboard.E - keyboard.Q, keyboard.S - keyboard.W) * (Vector3.one * flags.freecamSpeed);
+		local localKeyboard = Vector3.new(keyboard.D - keyboard.A, keyboard.E - keyboard.Q, keyboard.S - keyboard.W) * (Vector3.one * (flags.freecamSpeed / 20));
 		local shifting = inputService:IsKeyDown(Enum.KeyCode.LeftShift);
 
 		return (localKeyboard) * (navSpeed * (shifting and flags.freecamShiftMult or 1));
@@ -206,7 +208,7 @@ local function getFocusDistance(cframe)
 			local res = workspace:Raycast(origin, offset.unit * minDist);
 			res = res and res.Position;
 
-			local dist = (res - origin).magnitude;
+			local dist = (res - origin).magnitude; -- this
 			if (minDist > dist) then
 				minDist = dist;
 				minVect = offset.unit;
@@ -222,8 +224,8 @@ local cameraRot = Vector2.new();
 local velSpring = spring.new(5, Vector3.zero);
 local panSpring = spring.new(5, Vector2.new());
 
-return function(t)
-	if (not t) then
+return function(toggled)
+	if (not toggled) then
 		input.stop();
 		maid.freecam = nil;
 		playerState:Destroy();
