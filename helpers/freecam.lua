@@ -43,7 +43,7 @@ local mousePanID = httpService:GenerateGUID(false);
 do -- spring
 	spring.__index = spring;
 
-	function spring.new(frequency, position)	
+	function spring.new(frequency, position)
 		local self = setmetatable({}, spring);
 
 		self.f = frequency;
