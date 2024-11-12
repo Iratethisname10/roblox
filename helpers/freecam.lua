@@ -96,7 +96,16 @@ do -- playerState
 	end;
 
 	function playerState:Destroy()
-		if (not next(self)) then return; end;
+		if (
+			not self._oldCameraFieldOfView
+			or not self._oldCameraType
+			or not self._oldCameraCFrame
+			or not self._oldCameraFocus
+			or not self._oldMouseIconEnabled
+			or not self._oldMouseBehavior
+		) then
+			return;
+		end;
 
 		cam.FieldOfView = self._oldCameraFieldOfView;
 		self._oldCameraFieldOfView = nil;
