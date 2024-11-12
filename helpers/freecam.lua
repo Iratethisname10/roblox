@@ -206,9 +206,9 @@ local function getFocusDistance(cframe)
 			local offset = fx * cx - fy * cy + fz;
 			local origin = cframe.Position + offset * znear;
 			local res = workspace:Raycast(origin, offset.unit * minDist);
-			res = res and res.Position;
+			res = res and res.Position or Vector3.zero;
 
-			local dist = (res - origin).magnitude; -- this
+			local dist = (res - origin).magnitude;
 			if (minDist > dist) then
 				minDist = dist;
 				minVect = offset.unit;
