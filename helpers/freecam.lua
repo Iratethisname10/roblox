@@ -29,11 +29,6 @@ local spring = {};
 local playerState = {};
 local input = {};
 
-local cameraPos = Vector3.zero;
-local cameraRot = Vector2.new();
-local velSpring = spring.new(5, Vector3.zero);
-local panSpring = spring.new(5, Vector2.new());
-
 local contextPrioHigh = Enum.ContextActionPriority.High.Value;
 local mousePanEnum = Enum.UserInputType.MouseMovement;
 
@@ -156,8 +151,8 @@ do -- input
 		return localMouse;
 	end;
 
-	local function _keypress(_, state)
-		keyboard[input.KeyCode.Name] = state == Enum.UserInputState.Begin and 1 or 0;
+	local function _keypress(_, state, object)
+		keyboard[object.KeyCode.Name] = state == Enum.UserInputState.Begin and 1 or 0;
 		return Enum.ContextActionResult.Sink;
 	end
 
@@ -222,6 +217,11 @@ local function getFocusDistance(cframe)
 	return fz:Dot(minVect) * minDist;
 end;
 
+local cameraPos = Vector3.zero;
+local cameraRot = Vector2.new();
+local velSpring = spring.new(5, Vector3.zero);
+local panSpring = spring.new(5, Vector2.new());
+
 return function(t)
 	if (not t) then
 		input.stop();
@@ -242,9 +242,9 @@ return function(t)
 
 	playerState.new();
 	maid.freecam = runService.RenderStepped:Connect(function(deltaTime)
-		local vel = velSpring:Update(deltaTime, input.Vel(deltaTime));
-		local pan = panSpring:Update(deltaTime, input.Pan());
-		local zoomFactor = math.sqrt(math.dt(math.rad(70 / 2)) / math.tan(math.rad(cameraFov / 2)));
+		local vel = velSpring:Update(deltaTime, input.vel(deltaTime));
+		local pan = panSpring:Update(deltaTime, input.pan());
+		local zoomFactor = math.sqrt(math.tan(math.rad(70 / 2)) / math.tan(math.rad(cameraFov / 2)));
 
 		cameraRot += pan * Vector2.new(0.75, 1) * 8 * (deltaTime / zoomFactor);
 		cameraRot = Vector2.new(math.clamp(cameraRot.X, -math.rad(90), math.rad(90)), cameraRot.Y % (2 * math.pi));
