@@ -77,9 +77,6 @@ do -- playerState
 	function playerState.new()
 		local self = setmetatable({}, playerState);
 
-		self._oldCameraFieldOfView = cam.FieldOfView;
-		cam.FieldOfView = 70;
-
 		self._oldCameraType = cam.CameraType;
 		cam.CameraType = Enum.CameraType.Custom;
 
@@ -97,8 +94,7 @@ do -- playerState
 
 	function playerState:Destroy()
 		if (
-			not self._oldCameraFieldOfView
-			or not self._oldCameraType
+			not self._oldCameraType
 			or not self._oldCameraCFrame
 			or not self._oldCameraFocus
 			or not self._oldMouseIconEnabled
@@ -106,9 +102,6 @@ do -- playerState
 		) then
 			return;
 		end;
-
-		cam.FieldOfView = self._oldCameraFieldOfView;
-		self._oldCameraFieldOfView = nil;
 
 		cam.CameraType = self._oldCameraType;
 		self._oldCameraType = nil;
@@ -266,7 +259,6 @@ return function(toggled)
 
 		cam.CFrame = cameraCFrame;
 		cam.Focus = cameraCFrame * CFrame.new(0, 0, -getFocusDistance(cameraCFrame));
-		cam.FieldOfView = cameraFov;
 	end);
 
 	input.start();
