@@ -1,3 +1,11 @@
+-- // loadstring:
+-- // loadstring(game:HttpGet('https://raw.githubusercontent.com/Iratethisname10/roblox/refs/heads/main/games/super%20league%20soccer/main.lua'))()
+
+-- // this is the first ever open-source super league soccer
+-- // that actually works well
+-- // all features except for ball esp are made by me
+-- // ball esp is from aztup hub's parkour script
+
 local function getScript(url)
 	if (type(url) ~= 'string') then return warn('getscript failed 1'); end;
 
