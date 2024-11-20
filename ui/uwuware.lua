@@ -18,14 +18,14 @@ local Maid = getScript('maid');
 
 local cloneref = cloneref or function(inst) return inst; end;
 
-local Players = cloneref(game:GetService('Players'));
-local RunService = cloneref(game:GetService('RunService'));
-local TextService = cloneref(game:GetService('TextService'));
-local UserInputService = cloneref(game:GetService('UserInputService'));
-local HttpService = cloneref(game:GetService('HttpService'));
-local TweenService = cloneref(game:GetService('TweenService'));
+local players = cloneref(game:GetService('Players'));
+local runService = cloneref(game:GetService('RunService'));
+local textService = cloneref(game:GetService('TextService'));
+local inputService = cloneref(game:GetService('UserInputService'));
+local httpService = cloneref(game:GetService('HttpService'));
+local tweenService = cloneref(game:GetService('TweenService'));
 
-local LocalPlayer = Players.LocalPlayer;
+local localPlayer = players.LocalPlayer;
 
 local function toCamelCase(text)
 	return string.lower(text):gsub('%s(.)', string.upper);
@@ -51,7 +51,7 @@ local library = {
 	tabs = {},
 	draggable = true,
 	flags = {},
-	title = string.format('vocat\'s script | __vocat on discord'),
+	title = 'vocat\'s script | __vocat on discord',
 	open = false,
 	popup = nil,
 	instances = {},
@@ -61,7 +61,7 @@ local library = {
 	configVars = {},
 	tabSize = 0,
 	theme = {},
-	foldername = isGlobalConfigOn and 'vocats-projects/configs/global' or string.format('vocats-projects/configs/%s', tostring(LocalPlayer.UserId)),
+	foldername = isGlobalConfigOn and 'vocats-projects/configs/global' or string.format('vocats-projects/configs/%s', tostring(localPlayer.UserId)),
 	fileext = '.json',
 	chromaColor = Color3.new()
 }
@@ -83,7 +83,6 @@ do
 	library.OnLoad = Signal.new();
 	library.OnKeyPress = Signal.new();
 	library.OnKeyRelease = Signal.new();
-
 	library.OnFlagChanged = Signal.new();
 
 	library.unloadMaid:GiveTask(library.OnLoad);
@@ -105,7 +104,7 @@ do
 		local inputType = input.UserInputType;
 		if (inputType == mouseMovement) then return; end;
 
-		if (UserInputService:GetFocusedTextBox()) then return; end;
+		if (inputService:GetFocusedTextBox()) then return; end;
 		local inputKeyCode = input.KeyCode;
 
 		local fastInputObject = {
@@ -152,8 +151,8 @@ do
 		library.OnKeyRelease:Fire(fastInputObject);
 	end;
 
-	library.unloadMaid:GiveTask(UserInputService.InputBegan:Connect(onInputBegan));
-	library.unloadMaid:GiveTask(UserInputService.InputEnded:Connect(onInputEnded));
+	library.unloadMaid:GiveTask(inputService.InputBegan:Connect(onInputBegan));
+	library.unloadMaid:GiveTask(inputService.InputEnded:Connect(onInputEnded));
 
 	local function makeTooltip(interest, option)
 		library.unloadMaid:GiveTask(interest.InputChanged:connect(function(input)
@@ -244,7 +243,7 @@ do
 		local suc, fileContent = pcall(readfile, filePath);
 		if (not suc) then return; end;
 
-		local suc2, configData = pcall(HttpService.JSONDecode, HttpService, fileContent);
+		local suc2, configData = pcall(httpService.JSONDecode, httpService, fileContent);
 		if (not suc2) then return; end;
 
 		return configData;
@@ -344,8 +343,8 @@ do
 		local configVars = library.configVars;
 		configVars.config = configName;
 
-		writefile(self.foldername .. '/' .. self.fileext, HttpService:JSONEncode(configVars));
-		writefile(filePath, HttpService:JSONEncode(allConfigData));
+		writefile(self.foldername .. '/' .. self.fileext, httpService:JSONEncode(configVars));
+		writefile(filePath, httpService:JSONEncode(allConfigData));
 	end
 
 	function library:GetConfigs()
@@ -397,7 +396,7 @@ do
 			if (i == 'Text') then
 				option.main.Text = tostring(v);
 
-				local textSize = TextService:GetTextSize(option.main.ContentText, 15, Enum.Font.Code, Vector2.new(option.main.AbsoluteSize.X, 9e9));
+				local textSize = textService:GetTextSize(option.main.ContentText, 15, Enum.Font.Code, Vector2.new(option.main.AbsoluteSize.X, 9e9));
 				option.main.Size = UDim2.new(1, -12, 0, textSize.Y);
 			end;
 		end});
@@ -441,7 +440,7 @@ do
 			if (i == 'Text') then
 				if (v) then
 					option.title.Text = tostring(v);
-					option.title.Size = UDim2.new(0, TextService:GetTextSize(option.title.Text, 15, Enum.Font.Code, Vector2.new(9e9, 9e9)).X + 12, 0, 20);
+					option.title.Size = UDim2.new(0, textService:GetTextSize(option.title.Text, 15, Enum.Font.Code, Vector2.new(9e9, 9e9)).X + 12, 0, 20);
 					option.main.Size = UDim2.new(1, 0, 0, 18);
 				else
 					option.title.Text = '';
@@ -832,14 +831,14 @@ do
 				library.disableKeyBind = true;
 
 				bindinput.Text = '[...]';
-				bindinput.Size = UDim2.new(0, -TextService:GetTextSize(bindinput.Text, 16, Enum.Font.Code, Vector2.new(9e9, 9e9)).X, 0, 16);
+				bindinput.Size = UDim2.new(0, -textService:GetTextSize(bindinput.Text, 16, Enum.Font.Code, Vector2.new(9e9, 9e9)).X, 0, 16);
 				bindinput.TextColor3 = library.flags.menuAccentColor;
 
 				local displayKeys = {};
 				local keys = {};
 
-				maid.keybindLoop = RunService.Heartbeat:Connect(function()
-					for _, key in next, UserInputService:GetKeysPressed() do
+				maid.keybindLoop = runService.Heartbeat:Connect(function()
+					for _, key in next, inputService:GetKeysPressed() do
 						local value = formatKey(key.KeyCode.Name);
 
 						if (value == 'BACKSPACE') then
@@ -853,7 +852,7 @@ do
 						table.insert(keys, key.KeyCode);
 					end;
 
-					for _, mouseBtn in next, UserInputService:GetMouseButtonsPressed() do
+					for _, mouseBtn in next, inputService:GetMouseButtonsPressed() do
 						local value = formatKey(mouseBtn.UserInputType.Name);
 
 						if (option.nomouse) then continue; end;
@@ -873,7 +872,7 @@ do
 				end);
 
 				task.wait(0.05);
-				maid.onInputEnded = UserInputService.InputEnded:Connect(function(input)
+				maid.onInputEnded = inputService.InputEnded:Connect(function(input)
 					if (input.UserInputType ~= Enum.UserInputType.Keyboard and not input.UserInputType.Name:find('MouseButton')) then return; end;
 
 					maid.keybindLoop = nil;
@@ -890,13 +889,13 @@ do
 		local function isKeybindPressed()
 			local foundCount = 0;
 
-			for _, key in next, UserInputService:GetKeysPressed() do
+			for _, key in next, inputService:GetKeysPressed() do
 				if (table.find(option.keys, key.KeyCode)) then
 					foundCount += 1;
 				end;
 			end;
 
-			for _, key in next, UserInputService:GetMouseButtonsPressed() do
+			for _, key in next, inputService:GetMouseButtonsPressed() do
 				if (table.find(option.keys, key.UserInputType)) then
 					foundCount += 1;
 				end;
@@ -946,7 +945,7 @@ do
 				self.key = table.concat(formattedKey, '+');
 			end;
 
-			bindinput.Size = UDim2.new(0, -TextService:GetTextSize(bindinput.Text, 16, Enum.Font.Code, Vector2.new(9e9, 9e9)).X, 0, 16);
+			bindinput.Size = UDim2.new(0, -textService:GetTextSize(bindinput.Text, 16, Enum.Font.Code, Vector2.new(9e9, 9e9)).X, 0, 16);
 
 			if (self.key == 'none') then
 				maid.onKeyPress = nil;
@@ -970,8 +969,8 @@ do
 							option.callback(true, 0);
 						end;
 
-						Loop = library:AddConnection(RunService.Heartbeat, function(step)
-							if (not UserInputService:GetFocusedTextBox()) then
+						Loop = library:AddConnection(runService.Heartbeat, function(step)
+							if (not inputService:GetFocusedTextBox()) then
 								option.callback(nil, step);
 							end;
 						end);
@@ -1111,7 +1110,7 @@ do
 		local interest = (option.sub or option.textpos) and option.slider or option.main;
 		library.unloadMaid:GiveTask(interest.InputBegan:connect(function(input)
 			if (input.UserInputType.Name == 'MouseButton1') then
-				if (UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)) then
+				if (inputService:IsKeyDown(Enum.KeyCode.LeftControl) or inputService:IsKeyDown(Enum.KeyCode.RightControl)) then
 					manualInput = true;
 					option.title:CaptureFocus();
 				else
@@ -1157,9 +1156,9 @@ do
 			value = math.clamp(value, self.min, self.max);
 
 			if (self.min >= 0) then
-				TweenService:Create(option.fill, tweenInfo, {Size = UDim2.new((value - self.min) / (self.max - self.min), 0, 1, 0)}):Play();
+				tweenService:Create(option.fill, tweenInfo, {Size = UDim2.new((value - self.min) / (self.max - self.min), 0, 1, 0)}):Play();
 			else
-				TweenService:Create(option.fill, tweenInfo, {
+				tweenService:Create(option.fill, tweenInfo, {
 					Size = UDim2.new(value / (self.max - self.min), 0, 1, 0),
 					Position = UDim2.new((0 - self.min) / (self.max - self.min), 0, 0, 0)
 				}):Play();
@@ -1214,16 +1213,16 @@ do
 			library.OnLoad:Connect(function()
 				option.values = {};
 
-				for _, v in next, Players:GetPlayers() do
-					if (v == LocalPlayer) then continue; end;
+				for _, v in next, players:GetPlayers() do
+					if (v == localPlayer) then continue; end;
 					option:AddValue(v.Name);
 				end;
 
-				library.unloadMaid:GiveTask(Players.PlayerAdded:Connect(function(plr)
+				library.unloadMaid:GiveTask(players.PlayerAdded:Connect(function(plr)
 					option:AddValue(plr.Name);
 				end));
 
-				library.unloadMaid:GiveTask(Players.PlayerRemoving:Connect(function(plr)
+				library.unloadMaid:GiveTask(players.PlayerRemoving:Connect(function(plr)
 					option:RemoveValue(plr.Name);
 				end));
 			end);
@@ -1548,7 +1547,7 @@ do
 
 			self.value = self.multiselect and value or self.values[table.find(self.values, value) or 1];
 			if (self.playerOnly and not self.multiselect) then
-				self.value = Players:FindFirstChild(value);
+				self.value = players:FindFirstChild(value);
 			end;
 
 			if (not self.value) then return; end;
@@ -1946,7 +1945,7 @@ do
 			end;
 		end));
 
-		library:AddConnection(UserInputService.InputChanged, function(Input)
+		library:AddConnection(inputService.InputChanged, function(Input)
 			if (not editingsatval and not editinghue and not editingtrans) then return; end;
 
 			if (Input.UserInputType.Name == 'MouseMovement') then
@@ -2400,7 +2399,7 @@ do
 					option.multiselect = typeof(option.multiselect) == 'boolean' and option.multiselect or false;
 					option.value = option.multiselect and (typeof(option.value) == 'table' and option.value or {}) or tostring(option.value or option.values[1] or '');
 					if (option.multiselect) then
-						for i,v in next, option.values do
+						for _, v in next, option.values do
 							option.value[v] = false;
 						end;
 					end;
@@ -2574,7 +2573,7 @@ do
 					self.titleText = library:Create('TextLabel', {
 						AnchorPoint = Vector2.new(0, 0.5),
 						Position = UDim2.new(0, 12, 0, 0),
-						Size = UDim2.new(0, TextService:GetTextSize(self.title, 15, Enum.Font.Code, Vector2.new(9e9, 9e9)).X + 10, 0, 3),
+						Size = UDim2.new(0, textService:GetTextSize(self.title, 15, Enum.Font.Code, Vector2.new(9e9, 9e9)).X + 10, 0, 3),
 						BackgroundColor3 = Color3.fromRGB(30, 30, 30),
 						BorderSizePixel = 0,
 						Text = self.title,
@@ -2653,7 +2652,7 @@ do
 			if (self.hasInit) then return; end;
 			self.hasInit = true;
 
-			local size = TextService:GetTextSize(self.title, 18, Enum.Font.Code, Vector2.new(9e9, 9e9)).X + 10;
+			local size = textService:GetTextSize(self.title, 18, Enum.Font.Code, Vector2.new(9e9, 9e9)).X + 10;
 
 			self.button = library:Create('TextLabel', {
 				Position = UDim2.new(0, library.tabSize, 0, 22),
@@ -3018,7 +3017,7 @@ do
 			end;
 		end));
 
-		local titleTextSize = TextService:GetTextSize(self.titleLabel.Text, 18, Enum.Font.Code, Vector2.new(1000, 0));
+		local titleTextSize = textService:GetTextSize(self.titleLabel.Text, 18, Enum.Font.Code, Vector2.new(1000, 0));
 
 		local searchLabel = library:Create('ImageLabel', {
 			Position = UDim2.new(0, titleTextSize.X + 10, 0.5, -8),
@@ -3156,7 +3155,7 @@ do
 			self.currentTab = tab;
 			tab.button.TextColor3 = library.flags.menuAccentColor;
 
-			TweenService:Create(self.tabHighlight, tweenInfo, {
+			tweenService:Create(self.tabHighlight, tweenInfo, {
 				Position = UDim2.new(0, tab.button.Position.X.Offset, 0, 50),
 				Size = UDim2.new(0, tab.button.AbsoluteSize.X, 0, -1)
 			}):Play();
@@ -3190,14 +3189,14 @@ do
 			end;
 		end;
 
-		self:AddConnection(UserInputService.InputEnded, function(input)
+		self:AddConnection(inputService.InputEnded, function(input)
 			if (input.UserInputType.Name == 'MouseButton1') and self.slider then
 				self.slider.slider.BorderColor3 = Color3.new();
 				self.slider = nil;
 			end;
 		end);
 
-		self:AddConnection(UserInputService.InputChanged, function(input)
+		self:AddConnection(inputService.InputChanged, function(input)
 			if (self.open) then
 				if (input == dragInput and dragging and library.draggable) then
 					local delta = input.Position - dragStart;
@@ -3553,7 +3552,7 @@ do
 		library.unloadMaid:GiveTask(GuiService.NativeClose:Connect(saveConfigBeforeGameLeave));
 		library.unloadMaid:GiveTask(GuiService.MenuOpened:Connect(saveConfigBeforeGameLeave));
 
-		library.unloadMaid:GiveTask(LocalPlayer.OnTeleport:Connect(function(state)
+		library.unloadMaid:GiveTask(localPlayer.OnTeleport:Connect(function(state)
 			if (state ~= Enum.TeleportState.Started and state ~= Enum.TeleportState.RequestedFromServer) then return end;
 			saveConfigBeforeGameLeave();
 		end));
