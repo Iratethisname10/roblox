@@ -1,8 +1,6 @@
 local repoStore = game:GetService('ReplicatedStorage');
 local players = game:GetService('Players');
 
-local attackNPCs = false;
-
 local lplr = players.LocalPlayer
 local attack = repoStore.Events.Attack;
 
