@@ -8,12 +8,6 @@ local players = game:GetService('Players');
 local lplr = players.LocalPlayer
 local attack = repoStore.Events.Attack;
 
-repeat task.wait(); until lplr.Character and lplr.Character:FindFirstChild('JOB');
-
-if (lplr.Character.JOB.Value ~= 'Boar hunting') then
-	lplr.Character.JOB.Value = 'Boar hunting';
-end;
-
 local function getBoar()
 	local root = lplr.Character and lplr.Character.PrimaryPart;
 	if (not root) then return; end;
