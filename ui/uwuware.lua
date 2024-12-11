@@ -1231,19 +1231,21 @@ do
 		local function getMultiText()
 			local t = {};
 
-			if (option.playerOnly and option.multiselect) then
-				for i in next, option.values do
-					if (option.value[i]) then
-						table.insert(t, tostring(i));
+			pcall(function()
+				if (option.playerOnly and option.multiselect) then
+					for i in next, option.values do
+						if (option.value[i]) then
+							table.insert(t, tostring(i));
+						end;
+					end;
+				else
+					for _, v in next, option.values do
+						if (option.value[v]) then
+							table.insert(t, tostring(v));
+						end;
 					end;
 				end;
-			else
-				for i, v in next, option.values do
-					if (option.value[v]) then
-						table.insert(t, tostring(v));
-					end;
-				end;
-			end;
+			end);
 
 			return table.concat(t, ', ');
 		end;
